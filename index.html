@@ -284,9 +284,6 @@
         /* BOTÕES DE AÇÃO */
         .btn-action {
             width: 100%;
-            background-color: #1b4332;
-            color: #52b788;
-            border: 1px solid #2d6a4f;
             padding: 12px;
             border-radius: 6px;
             font-family: 'Share Tech Mono', monospace;
@@ -295,12 +292,6 @@
             cursor: pointer;
             margin-top: 15px;
             transition: all 0.3s;
-        }
-
-        .btn-action:hover {
-            background-color: #52b788;
-            color: #121212;
-            box-shadow: 0 0 12px rgba(82, 183, 136, 0.4);
         }
 
         .btn-register-materials {
@@ -314,7 +305,7 @@
             box-shadow: 0 0 12px rgba(72, 202, 228, 0.4);
         }
 
-        /* PAINEL HISTÓRICO DE MATERIAIS / VENDAS */
+        /* PAINEL HISTÓRICO DE MATERIAIS */
         .materials-box {
             background-color: #0d0d0d;
             border: 1px solid #222;
@@ -376,7 +367,6 @@
         }
         .material-total-card.aluminio { border-left: 3px solid var(--accent-blue); }
         .material-total-card.cobre { border-left: 3px solid var(--accent-orange); }
-        .material-total-card.vendas-total { border-left: 3px solid #52b788; grid-column: span 2; }
 
         .material-value {
             font-size: 22px;
@@ -474,22 +464,16 @@
     <!-- Abas de Navegação -->
     <div class="tabs-nav">
         <button class="tab-btn active" onclick="switchTab('calc')">🛠️ Calculadora</button>
-        <button class="tab-btn" onclick="switchTab('metas')">📦 Registro Meta</button>
+        <button class="tab-btn" onclick="switchTab('metas')">📦 Registrar Meta</button>
     </div>
 
-    <!-- CONTEÚDO: CALCULADORA -->
+    <!-- CONTEÚDO: CALCULADORA (Apenas Cálculo Direto) -->
     <div id="tab-calc" class="tab-content active">
-        <!-- Apenas o ID na aba da calculadora -->
-        <div class="input-group">
-            <label for="mecanicoIdCalc">ID Passaporte:</label>
-            <input type="text" id="mecanicoIdCalc" class="id-input" placeholder="Ex: 1042" required oninput="sincronizarIdentidades(this.value, 'id')">
-        </div>
-
         <div class="input-group">
             <label for="baseValue">Valor de Custo (Peças):</label>
             <div class="input-wrapper">
                 <span class="currency-symbol">$</span>
-                <input type="number" id="baseValue" placeholder="0,00" min="0" oninput="calcularValores()">
+                <input type="number" id="baseValue" placeholder="0,00" min="0" oninput="calcularValores()" autofocus>
             </div>
         </div>
 
@@ -512,41 +496,9 @@
                 <span id="txtTotal">$ 0,00</span>
             </div>
         </div>
-
-        <button class="btn-action" onclick="registrarVenda()">📥 Registrar Venda</button>
-
-        <!-- HISTÓRICO DE MÃO DE OBRA DO TURNO -->
-        <div class="materials-box">
-            <div class="materials-title">Seu Ganho no Turno (Mão de Obra)</div>
-            <div class="materials-grid">
-                <div class="material-total-card faturamento-total-card vendas-total">
-                    <span style="color: #52b788;">TOTAL RECEBIDO</span>
-                    <div class="material-value" id="totFaturadoTurno">$ 0,00</div>
-                </div>
-            </div>
-
-            <div class="history-section">
-                <label>Últimas Mãos de Obra Registradas:</label>
-                <div class="history-table-container">
-                    <table class="history-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Tipo</th>
-                                <th>Lucro (M.O)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="historySalesBody">
-                            <!-- Preenchido dinamicamente -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <button class="btn-reset-meta" onclick="limparHistoricoVendas()">Zerar Turno Fin.</button>
-        </div>
     </div>
 
-    <!-- CONTEÚDO: ESTOQUE DE MATERIAIS -->
+    <!-- CONTEÚDO: ESTOQUE DE MATERIAIS (Inalterado) -->
     <div id="tab-metas" class="tab-content">
         
         <!-- ENTRADA DE MATERIAIS -->
@@ -642,16 +594,9 @@
     const META_SEMANAL = 300;
 
     // Estados Globais / Turno Financeiro
-    let totalFaturado = parseFloat(localStorage.getItem('bennys_total_faturado')) || 0;
-    let historicoVendas = JSON.parse(localStorage.getItem('bennys_historico_vendas')) || [];
     let historicoMateriais = JSON.parse(localStorage.getItem('bennys_historico')) || [];
     
-    let valorCobrarAtual = 0;
-    let valorMaoDeObraAtual = 0; 
-
     // Inicialização ao carregar a página
-    atualizarExibicaoFaturamento();
-    renderizarHistoricoVendas();
     renderizarHistorico();
     sincronizarIdentidades("", 'id'); 
 
@@ -673,12 +618,11 @@
         }
     }
 
-    // Lógica para sincronizar dinamicamente os IDs e os nomes entre abas
+    // Lógica para sincronizar dinamicamente os IDs e os nomes da aba de metas
     function sincronizarIdentidades(valor, tipo) {
         const textoLimpo = valor.trim();
         
         if (tipo === 'id') {
-            document.getElementById('mecanicoIdCalc').value = textoLimpo;
             document.getElementById('mecanicoIdMat').value = textoLimpo;
 
             const metaContainer = document.getElementById('metaSection');
@@ -714,20 +658,20 @@
         document.getElementById('progressText').innerText = `${somaItens} / ${META_SEMANAL} Itens (${porcentagem.toFixed(0)}%)`;
     }
 
-    // Lógica da Calculadora
+    // Lógica da Calculadora Direta
     function calcularValores() {
         const input = document.getElementById('baseValue');
         const isPoliceCheckbox = document.getElementById('isPolice');
         const valorBase = parseFloat(input.value) || 0;
 
         const taxa = isPoliceCheckbox.checked ? 0.25 : 0.30; 
-        valorMaoDeObraAtual = valorBase * taxa; 
-        valorCobrarAtual = valorBase + valorMaoDeObraAtual;
+        const valorMaoDeObra = valorBase * taxa; 
+        const valorTotal = valorBase + valorMaoDeObra;
 
         document.getElementById('txtMargem').innerText = (taxa * 100).toFixed(0);
         document.getElementById('txtCusto').innerText = formatarMoeda(valorBase);
-        document.getElementById('txtAcrescimo').innerText = formatarMoeda(valorMaoDeObraAtual);
-        document.getElementById('txtTotal').innerText = formatarMoeda(valorCobrarAtual);
+        document.getElementById('txtAcrescimo').innerText = formatarMoeda(valorMaoDeObra);
+        document.getElementById('txtTotal').innerText = formatarMoeda(valorTotal);
     }
 
     // Enviar dados para o Discord
@@ -735,77 +679,8 @@
         fetch(DISCORD_WEBHOOK_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ content: mensagemFormatada })
+            body: JSON.stringify({ content: messageFormatada })
         }).catch(err => console.error("Erro ao reportar no Discord: ", err));
-    }
-
-    // Registrar faturamento
-    function registrarVenda() {
-        const idMecCalc = document.getElementById('mecanicoIdCalc').value.trim();
-        const isPoliceCheckbox = document.getElementById('isPolice');
-        
-        if (!idMecCalc) {
-            alert("Por favor, insira o seu ID (Passaporte) antes de registrar!");
-            return;
-        }
-        if (valorCobrarAtual <= 0) {
-            alert("Por favor, calcule um valor antes de registrar!");
-            return;
-        }
-
-        totalFaturado += valorMaoDeObraAtual;
-        localStorage.setItem('bennys_total_faturado', totalFaturado);
-
-        const tipoCliente = isPoliceCheckbox.checked ? "Policial (25%)" : "Padrão (30%)";
-
-        historicoVendas.unshift({
-            id: idMecCalc,
-            tipo: tipoCliente,
-            valor: valorMaoDeObraAtual
-        });
-        localStorage.setItem('bennys_historico_vendas', JSON.stringify(historicoVendas));
-
-        // Envia sem o campo do nome (já que foi removido na calculadora)
-        const msgDiscord = `🛠️ **[NOVA VENDA REGISTRADA]**\n👤 **Mecânico ID:** \`${idMecCalc}\`\n📋 **Tipo:** \`${tipoCliente}\`\n💵 **Valor Total Cobrado:** \`${formatarMoeda(valorCobrarAtual)}\`\n💰 **Lucro Líquido (M.O):** \`${formatarMoeda(valorMaoDeObraAtual)}\``;
-        enviarParaDiscord(msgDiscord);
-
-        alert(`Sucesso! Lucro de Mão de Obra de ${formatarMoeda(valorMaoDeObraAtual)} registrado.`);
-        window.location.reload();
-    }
-
-    function atualizarExibicaoFaturamento() {
-        document.getElementById('totFaturadoTurno').innerText = formatarMoeda(totalFaturado);
-    }
-
-    function renderizarHistoricoVendas() {
-        const tbody = document.getElementById('historySalesBody');
-        tbody.innerHTML = '';
-
-        if (historicoVendas.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#555;">Nenhum lucro registrado</td></tr>`;
-            return;
-        }
-
-        historicoVendas.forEach(venda => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><strong>#${venda.id}</strong></td>
-                <td>${venda.tipo}</td>
-                <td style="color:#52b788; font-weight:bold;">+ ${formatarMoeda(venda.valor)}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    function limparHistoricoVendas() {
-        if (confirm("Quer realmente zerar seus lucros de Mão de Obra deste turno?")) {
-            totalFaturado = 0;
-            historicoVendas = [];
-            localStorage.setItem('bennys_total_faturado', 0);
-            localStorage.setItem('bennys_historico_vendas', JSON.stringify([]));
-            atualizarExibicaoFaturamento();
-            renderizarHistoricoVendas();
-        }
     }
 
     // Registrar Materiais
