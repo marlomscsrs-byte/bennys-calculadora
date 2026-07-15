@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benny's Motorworks - Calculadora</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --primary-color: #9d4edd; /* Roxo característico da Benny's */
+            --primary-hover: #7b2cbf;
+            --text-color: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent-color: #390099;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .calculator-card {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 400px;
+            border: 2px solid var(--primary-color);
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 0;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 24px;
+            border-bottom: 2px dashed #333;
+            padding-bottom: 15px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            margin-top: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 12px 12px 35px;
+            border-radius: 6px;
+            border: 1px solid #333;
+            background-color: #0f0f0f;
+            color: #fff;
+            font-size: 18px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--primary-color);
+        }
+
+        /* Área de opções (Policial) */
+        .options-group {
+            background-color: #151515;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid #252525;
+        }
+
+        .options-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .options-group label {
+            margin: 0;
+            cursor: pointer;
+            color: #fff;
+            user-select: none;
+        }
+
+        .results {
+            background-color: #151515;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .result-row.total {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #333;
+            font-size: 20px;
+            font-weight: bold;
+            color: #52b788; /* Verde para destacar o preço de venda */
+        }
+
+        .result-row span:last-child {
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator-card">
+    <h2>Benny's Motorworks</h2>
+    
+    <div class="input-group">
+        <label for="baseValue">Valor de Custo (Peças/Modificações):</label>
+        <div class="input-wrapper">
+            <span class="currency-symbol">$</span>
+            <input type="number" id="baseValue" placeholder="0,00" min="0" oninput="calcularValores()">
+        </div>
+    </div>
+
+    <!-- Opção de Cobrança Policial -->
+    <div class="options-group">
+        <input type="checkbox" id="isPolice" onchange="calcularValores()">
+        <label for="isPolice">Cliente é Policial? (Taxa de 25%)</label>
+    </div>
+
+    <div class="results">
+        <div class="result-row">
+            <span>Custo das Peças:</span>
+            <span id="txtCusto">$ 0,00</span>
+        </div>
+        <div class="result-row">
+            <span>Mão de Obra (<span id="txtMargem">30</span>%):</span>
+            <span id="txtAcrescimo">$ 0,00</span>
+        </div>
+        <div class="result-row total">
+            <span>Cobrar do Cliente:</span>
+            <span id="txtTotal">$ 0,00</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        Benny's Original Motor Works &copy; 2026
+    </div>
+</div>
+
+<script>
+    function formatarMoeda(valor) {
+        return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'USD' })
+            .replace('US$', '$'); 
+    }
+
+    function calcularValores() {
+        const input = document.getElementById('baseValue');
+        const isPoliceCheckbox = document.getElementById('isPolice');
+        const valorBase = parseFloat(input.value) || 0;
+
+        // Se for policial, a margem cai para 25% (0.25), senão permanece 30% (0.30)
+        const taxa = isPoliceCheckbox.checked ? 0.25 : 0.30; 
+        
+        const valorAcrescimo = valorBase * taxa;
+        const valorTotal = valorBase + valorAcrescimo;
+
+        // Atualiza o texto da porcentagem exibida na interface
+        document.getElementById('txtMargem').innerText = (taxa * 100).toFixed(0);
+        
+        document.getElementById('txtCusto').innerText = formatarMoeda(valorBase);
+        document.getElementById('txtAcrescimo').innerText = formatarMoeda(valorAcrescimo);
+        document.getElementById('txtTotal').innerText = formatarMoeda(valorTotal);
+    }
+</script>
+
+</body>
+</html>
