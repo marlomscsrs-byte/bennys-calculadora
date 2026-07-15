@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Benny's Motorworks - Calculadora</title>
-    <!-- Importação de fontes para recriar o logo idêntico ao da imagem -->
+    <title>Benny's Motorworks - Calculadora & Materiais</title>
+    <!-- Importação de fontes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Rubik+Mono+One&family=Share+Tech+Mono&family=Teko:wght@600&family=Montserrat:ital,wght@1,300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Rubik+Mono+One&family=Share+Tech+Mono&family=Teko:wght@600&family=Montserrat:ital,wght=1,300&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -17,6 +17,8 @@
             --primary-hover: #ef233c;
             --text-color: #ffffff;
             --text-secondary: #8d99ae;
+            --accent-blue: #1e90ff;
+            --accent-orange: #f39c12;
         }
 
         body {
@@ -28,8 +30,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         .calculator-card {
@@ -38,16 +42,16 @@
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), inset 0 0 15px rgba(217, 4, 41, 0.1);
             width: 100%;
-            max-width: 400px;
+            max-width: 440px;
             border: 2px solid var(--primary-color);
             position: relative;
             overflow: hidden;
         }
 
-        /* LOGO ESTILIZADO DA IMAGEM */
+        /* LOGO ESTILIZADO */
         .logo-container {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             user-select: none;
             border-bottom: 1px solid #222;
             padding-bottom: 15px;
@@ -105,16 +109,66 @@
             display: block;
         }
 
-        /* FORMULÁRIO */
-        .input-group {
+        /* SISTEMA DE ABAS */
+        .tabs-nav {
+            display: flex;
+            gap: 5px;
             margin-bottom: 20px;
+            border-bottom: 1px solid #222;
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: #0f0f0f;
+            border: 1px solid #333;
+            color: var(--text-secondary);
+            padding: 10px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            text-transform: uppercase;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(217, 4, 41, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* FORMULÁRIO E ENTRADAS */
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group.row-flex {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .input-group.materials {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: var(--text-secondary);
-            font-size: 14px;
+            font-size: 13px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -133,31 +187,51 @@
             font-size: 18px;
         }
 
-        input[type="number"] {
+        input[type="number"], input[type="text"] {
             width: 100%;
-            padding: 12px 12px 12px 35px;
+            padding: 10px 12px;
             border-radius: 6px;
             border: 1px solid #333;
             background-color: #080808;
             color: #fff;
-            font-size: 20px;
+            font-size: 16px;
             font-family: 'Share Tech Mono', monospace;
             box-sizing: border-box;
             outline: none;
             transition: all 0.3s;
         }
 
-        input[type="number"]:focus {
+        input[type="number"] {
+            padding-left: 30px;
+            font-size: 18px;
+        }
+
+        /* Campos de Identificação */
+        .id-input {
+            border-bottom: 2px solid var(--primary-color) !important;
+        }
+        .name-input {
+            border-bottom: 2px solid #5865F2 !important;
+        }
+
+        /* Input específico para os materiais */
+        .mat-input-aluminio {
+            border-bottom: 2px solid var(--accent-blue) !important;
+        }
+        .mat-input-cobre {
+            border-bottom: 2px solid var(--accent-orange) !important;
+        }
+
+        input:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 10px rgba(217, 4, 41, 0.3);
         }
 
-        /* CHECKBOX POLICIAL */
         .options-group {
             background-color: #0e0e0e;
             padding: 12px;
             border-radius: 6px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -184,7 +258,7 @@
             background-color: #0a0a0a;
             padding: 15px;
             border-radius: 8px;
-            margin-top: 20px;
+            margin-top: 15px;
             border-left: 4px solid var(--primary-color);
             border-right: 1px solid #222;
             border-top: 1px solid #222;
@@ -204,18 +278,183 @@
             border-top: 1px dashed #333;
             font-size: 22px;
             font-weight: bold;
-            color: #52b788; /* Verde para destacar o preço de venda */
+            color: #52b788;
         }
 
-        .result-row span:last-child {
+        /* BOTÕES DE AÇÃO */
+        .btn-action {
+            width: 100%;
+            background-color: #1b4332;
+            color: #52b788;
+            border: 1px solid #2d6a4f;
+            padding: 12px;
+            border-radius: 6px;
             font-family: 'Share Tech Mono', monospace;
+            font-size: 16px;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+
+        .btn-action:hover {
+            background-color: #52b788;
+            color: #121212;
+            box-shadow: 0 0 12px rgba(82, 183, 136, 0.4);
+        }
+
+        .btn-register-materials {
+            background-color: #1c2541;
+            color: #48cae4;
+            border: 1px solid #0077b6;
+        }
+        .btn-register-materials:hover {
+            background-color: #48cae4;
+            color: #121212;
+            box-shadow: 0 0 12px rgba(72, 202, 228, 0.4);
+        }
+
+        /* PAINEL HISTÓRICO DE MATERIAIS / VENDAS */
+        .materials-box {
+            background-color: #0d0d0d;
+            border: 1px solid #222;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+        }
+
+        .materials-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            border-bottom: 1px solid #222;
+            padding-bottom: 5px;
+        }
+
+        /* BARRA DE PROGRESSO DA META INDIVIDUAL */
+        .meta-container {
+            margin-bottom: 15px;
+        }
+        .progress-container {
+            background: #080808;
+            border-radius: 6px;
+            height: 18px;
+            overflow: hidden;
+            border: 1px solid #222;
+            margin-top: 8px;
+            position: relative;
+        }
+        .progress-bar {
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
+            height: 100%;
+            width: 0%;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 8px rgba(217, 4, 41, 0.6);
+        }
+        .progress-text {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-color);
+            margin-top: 6px;
+            font-weight: bold;
+        }
+
+        .materials-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .material-total-card {
+            background: #151515;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .material-total-card.aluminio { border-left: 3px solid var(--accent-blue); }
+        .material-total-card.cobre { border-left: 3px solid var(--accent-orange); }
+        .material-total-card.vendas-total { border-left: 3px solid #52b788; grid-column: span 2; }
+
+        .material-value {
+            font-size: 22px;
+            font-weight: bold;
+            color: #fff;
+            margin-top: 5px;
+        }
+
+        /* TABELA HISTÓRICA */
+        .history-section {
+            margin-top: 10px;
+        }
+
+        .history-table-container {
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #222;
+            border-radius: 4px;
+            background: #080808;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            text-align: left;
+        }
+
+        .history-table th {
+            background-color: #111;
+            color: var(--text-secondary);
+            padding: 6px;
+            font-weight: normal;
+            border-bottom: 1px solid #222;
+            position: sticky;
+            top: 0;
+        }
+
+        .history-table td {
+            padding: 6px;
+            border-bottom: 1px solid #151515;
+            color: #fff;
+        }
+
+        .link-comprovante {
+            color: #48cae4;
+            text-decoration: none;
+        }
+        .link-comprovante:hover {
+            text-decoration: underline;
+        }
+
+        .btn-reset-meta {
+            background-color: transparent;
+            border: 1px dashed #444;
+            color: #888;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            margin-top: 5px;
+            display: block;
+            width: fit-content;
+            margin-left: auto;
+            transition: all 0.2s;
+        }
+
+        .btn-reset-meta:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
         }
 
         .footer {
             text-align: center;
             font-size: 11px;
             color: #555;
-            margin-top: 20px;
+            margin-top: 25px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -224,72 +463,443 @@
 <body>
 
 <div class="calculator-card">
-    <!-- Logotipo Benny's Recriado conforme a Imagem -->
+    <!-- Logotipo Benny's -->
     <div class="logo-container">
         <div class="logo-bennys">Benny's</div>
         <div class="logo-original">Original</div>
         <div class="logo-motorworks">Motorworks</div>
         <div class="logo-speedshop">Speed Shop</div>
     </div>
-    
-    <div class="input-group">
-        <label for="baseValue">Valor de Custo (Peças):</label>
-        <div class="input-wrapper">
-            <span class="currency-symbol">$</span>
-            <input type="number" id="baseValue" placeholder="0,00" min="0" oninput="calcularValores()">
+
+    <!-- Abas de Navegação -->
+    <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab('calc')">🛠️ Calculadora</button>
+        <button class="tab-btn" onclick="switchTab('metas')">📦 Estoque & Itens</button>
+    </div>
+
+    <!-- CONTEÚDO: CALCULADORA -->
+    <div id="tab-calc" class="tab-content active">
+        <!-- Apenas o ID na aba da calculadora -->
+        <div class="input-group">
+            <label for="mecanicoIdCalc">ID Passaporte:</label>
+            <input type="text" id="mecanicoIdCalc" class="id-input" placeholder="Ex: 1042" required oninput="sincronizarIdentidades(this.value, 'id')">
+        </div>
+
+        <div class="input-group">
+            <label for="baseValue">Valor de Custo (Peças):</label>
+            <div class="input-wrapper">
+                <span class="currency-symbol">$</span>
+                <input type="number" id="baseValue" placeholder="0,00" min="0" oninput="calcularValores()">
+            </div>
+        </div>
+
+        <div class="options-group">
+            <input type="checkbox" id="isPolice" onchange="calcularValores()">
+            <label for="isPolice">Cliente é Policial? (Margem de 25%)</label>
+        </div>
+
+        <div class="results">
+            <div class="result-row">
+                <span>Custo das Peças:</span>
+                <span id="txtCusto">$ 0,00</span>
+            </div>
+            <div class="result-row">
+                <span>Mão de Obra (<span id="txtMargem">30</span>%):</span>
+                <span id="txtAcrescimo">$ 0,00</span>
+            </div>
+            <div class="result-row total">
+                <span>Cobrar do Cliente:</span>
+                <span id="txtTotal">$ 0,00</span>
+            </div>
+        </div>
+
+        <button class="btn-action" onclick="registrarVenda()">📥 Registrar Venda</button>
+
+        <!-- HISTÓRICO DE MÃO DE OBRA DO TURNO -->
+        <div class="materials-box">
+            <div class="materials-title">Seu Ganho no Turno (Mão de Obra)</div>
+            <div class="materials-grid">
+                <div class="material-total-card faturamento-total-card vendas-total">
+                    <span style="color: #52b788;">TOTAL RECEBIDO</span>
+                    <div class="material-value" id="totFaturadoTurno">$ 0,00</div>
+                </div>
+            </div>
+
+            <div class="history-section">
+                <label>Últimas Mãos de Obra Registradas:</label>
+                <div class="history-table-container">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tipo</th>
+                                <th>Lucro (M.O)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historySalesBody">
+                            <!-- Preenchido dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <button class="btn-reset-meta" onclick="limparHistoricoVendas()">Zerar Turno Fin.</button>
         </div>
     </div>
 
-    <!-- Opção de Cobrança Policial -->
-    <div class="options-group">
-        <input type="checkbox" id="isPolice" onchange="calcularValores()">
-        <label for="isPolice">Cliente é Policial? (Margem de 25%)</label>
+    <!-- CONTEÚDO: ESTOQUE DE MATERIAIS -->
+    <div id="tab-metas" class="tab-content">
+        
+        <!-- ENTRADA DE MATERIAIS -->
+        <div class="materials-box">
+            <div class="materials-title">Registrar Entrada</div>
+            
+            <div class="input-group row-flex">
+                <div>
+                    <label for="mecanicoIdMat">ID Passaporte:</label>
+                    <input type="text" id="mecanicoIdMat" class="id-input" placeholder="Ex: 1042" required oninput="sincronizarIdentidades(this.value, 'id')">
+                </div>
+                <div>
+                    <label for="nomeMat">Nome na Cidade:</label>
+                    <input type="text" id="nomeMat" class="name-input" placeholder="Ex: Gabriel Brito" required oninput="sincronizarIdentidades(this.value, 'nome')">
+                </div>
+            </div>
+
+            <!-- META SEMANAL DO ID SELECIONADO -->
+            <div class="meta-container" id="metaSection" style="margin-top: 15px; display: none;">
+                <label style="color: #fff; font-size: 11px;">Sua Meta Semanal (<span id="idMetaTitle">#----</span>)</label>
+                <div class="progress-container">
+                    <div id="progressBar" class="progress-bar"></div>
+                </div>
+                <div id="progressText" class="progress-text">0 / 300 Itens (0%)</div>
+            </div>
+
+            <div class="input-group materials">
+                <div>
+                    <label>Alumínio (Qtd):</label>
+                    <input type="number" id="inputAluminio" class="mat-input-aluminio" placeholder="0" min="0">
+                </div>
+                <div>
+                    <label>Cobre (Qtd):</label>
+                    <input type="number" id="inputCobre" class="mat-input-cobre" placeholder="0" min="0">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Link da Imagem (Inventário):</label>
+                <input type="text" id="inputImgLink" placeholder="Cole aqui o link do print (Discord/Imgur)">
+            </div>
+
+            <button class="btn-action btn-register-materials" onclick="registrarMateriais()">📦 Registrar Materiais</button>
+        </div>
+
+        <!-- TOTAIS DOS MATERIAIS COLETADOS -->
+        <div class="materials-box">
+            <div class="materials-title">Seu Estoque Total (<span id="idEstoqueTitle">#----</span>)</div>
+            <div class="materials-grid">
+                <div class="material-total-card aluminio">
+                    <span style="color: var(--accent-blue);">ALUMÍNIO</span>
+                    <div class="material-value" id="totAluminio">0</div>
+                </div>
+                <div class="material-total-card cobre">
+                    <span style="color: var(--accent-orange);">COBRE</span>
+                    <div class="material-value" id="totCobre">0</div>
+                </div>
+            </div>
+
+            <!-- Histórico de Imagens e Registros -->
+            <div class="history-section">
+                <label>Histórico Local de Entregas:</label>
+                <div class="history-table-container">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Alum.</th>
+                                <th>Cobre</th>
+                                <th>Print</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyBody">
+                            <!-- Preenchido dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-reset-meta" onclick="limparMateriaisEstoque()">Zerar Estoque & Histórico</button>
     </div>
 
-    <div class="results">
-        <div class="result-row">
-            <span>Custo das Peças:</span>
-            <span id="txtCusto">$ 0,00</span>
-        </div>
-        <div class="result-row">
-            <span>Mão de Obra (<span id="txtMargem">30</span>%):</span>
-            <span id="txtAcrescimo">$ 0,00</span>
-        </div>
-        <div class="result-row total">
-            <span>Cobrar do Cliente:</span>
-            <span id="txtTotal">$ 0,00</span>
-        </div>
-    </div>
-
-    <!-- Assinatura personalizada no rodapé -->
+    <!-- Rodapé com assinatura -->
     <div class="footer">
         Est. 2026 • Criado por Brito
     </div>
 </div>
 
 <script>
+    // URL do Webhook do Discord Oficial
+    const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1526991641473319087/FkSmdTG6Oa9letv4t8GvJS5G1buBR3SgrhACFEp1o1tdYI0f6vL9hAfTNHL306aTKGox';
+    const META_SEMANAL = 300;
+
+    // Estados Globais / Turno Financeiro
+    let totalFaturado = parseFloat(localStorage.getItem('bennys_total_faturado')) || 0;
+    let historicoVendas = JSON.parse(localStorage.getItem('bennys_historico_vendas')) || [];
+    let historicoMateriais = JSON.parse(localStorage.getItem('bennys_historico')) || [];
+    
+    let valorCobrarAtual = 0;
+    let valorMaoDeObraAtual = 0; 
+
+    // Inicialização ao carregar a página
+    atualizarExibicaoFaturamento();
+    renderizarHistoricoVendas();
+    renderizarHistorico();
+    sincronizarIdentidades("", 'id'); 
+
     function formatarMoeda(valor) {
-        return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'USD' })
-            .replace('US$', '$'); 
+        return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'USD' }).replace('US$', '$'); 
     }
 
+    // Gerenciador de Abas
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+        if (tabName === 'calc') {
+            document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+            document.getElementById('tab-calc').classList.add('active');
+        } else {
+            document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+            document.getElementById('tab-metas').classList.add('active');
+        }
+    }
+
+    // Lógica para sincronizar dinamicamente os IDs e os nomes entre abas
+    function sincronizarIdentidades(valor, tipo) {
+        const textoLimpo = valor.trim();
+        
+        if (tipo === 'id') {
+            document.getElementById('mecanicoIdCalc').value = textoLimpo;
+            document.getElementById('mecanicoIdMat').value = textoLimpo;
+
+            const metaContainer = document.getElementById('metaSection');
+
+            if (textoLimpo === "") {
+                metaContainer.style.display = "none";
+                document.getElementById('idEstoqueTitle').innerText = "#----";
+                document.getElementById('totAluminio').innerText = "0";
+                document.getElementById('totCobre').innerText = "0";
+            } else {
+                metaContainer.style.display = "block";
+                document.getElementById('idMetaTitle').innerText = `#${textoLimpo}`;
+                document.getElementById('idEstoqueTitle').innerText = `#${textoLimpo}`;
+                atualizarExibicaoMateriaisDoID(textoLimpo);
+            }
+        } else if (tipo === 'nome') {
+            document.getElementById('nomeMat').value = textoLimpo;
+        }
+    }
+
+    // Busca e exibe do LocalStorage os materiais específicos apenas do ID ativo
+    function atualizarExibicaoMateriaisDoID(id) {
+        const totalAluminioID = parseInt(localStorage.getItem(`bennys_al_${id}`)) || 0;
+        const totalCobreID = parseInt(localStorage.getItem(`bennys_co_${id}`)) || 0;
+
+        document.getElementById('totAluminio').innerText = totalAluminioID;
+        document.getElementById('totCobre').innerText = totalCobreID;
+
+        const somaItens = totalAluminioID + totalCobreID;
+        const porcentagem = Math.min((somaItens / META_SEMANAL) * 100, 100);
+
+        document.getElementById('progressBar').style.width = porcentagem + '%';
+        document.getElementById('progressText').innerText = `${somaItens} / ${META_SEMANAL} Itens (${porcentagem.toFixed(0)}%)`;
+    }
+
+    // Lógica da Calculadora
     function calcularValores() {
         const input = document.getElementById('baseValue');
         const isPoliceCheckbox = document.getElementById('isPolice');
         const valorBase = parseFloat(input.value) || 0;
 
-        // Se for policial, a margem cai para 25% (0.25), senão permanece 30% (0.30)
         const taxa = isPoliceCheckbox.checked ? 0.25 : 0.30; 
-        
-        const valorAcrescimo = valorBase * taxa;
-        const valorTotal = valorBase + valorAcrescimo;
+        valorMaoDeObraAtual = valorBase * taxa; 
+        valorCobrarAtual = valorBase + valorMaoDeObraAtual;
 
-        // Atualiza o texto da porcentagem exibida na interface
         document.getElementById('txtMargem').innerText = (taxa * 100).toFixed(0);
-        
         document.getElementById('txtCusto').innerText = formatarMoeda(valorBase);
-        document.getElementById('txtAcrescimo').innerText = formatarMoeda(valorAcrescimo);
-        document.getElementById('txtTotal').innerText = formatarMoeda(valorTotal);
+        document.getElementById('txtAcrescimo').innerText = formatarMoeda(valorMaoDeObraAtual);
+        document.getElementById('txtTotal').innerText = formatarMoeda(valorCobrarAtual);
+    }
+
+    // Enviar dados para o Discord
+    function enviarParaDiscord(mensagemFormatada) {
+        fetch(DISCORD_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: mensagemFormatada })
+        }).catch(err => console.error("Erro ao reportar no Discord: ", err));
+    }
+
+    // Registrar faturamento
+    function registrarVenda() {
+        const idMecCalc = document.getElementById('mecanicoIdCalc').value.trim();
+        const isPoliceCheckbox = document.getElementById('isPolice');
+        
+        if (!idMecCalc) {
+            alert("Por favor, insira o seu ID (Passaporte) antes de registrar!");
+            return;
+        }
+        if (valorCobrarAtual <= 0) {
+            alert("Por favor, calcule um valor antes de registrar!");
+            return;
+        }
+
+        totalFaturado += valorMaoDeObraAtual;
+        localStorage.setItem('bennys_total_faturado', totalFaturado);
+
+        const tipoCliente = isPoliceCheckbox.checked ? "Policial (25%)" : "Padrão (30%)";
+
+        historicoVendas.unshift({
+            id: idMecCalc,
+            tipo: tipoCliente,
+            valor: valorMaoDeObraAtual
+        });
+        localStorage.setItem('bennys_historico_vendas', JSON.stringify(historicoVendas));
+
+        // Envia sem o campo do nome (já que foi removido na calculadora)
+        const msgDiscord = `🛠️ **[NOVA VENDA REGISTRADA]**\n👤 **Mecânico ID:** \`${idMecCalc}\`\n📋 **Tipo:** \`${tipoCliente}\`\n💵 **Valor Total Cobrado:** \`${formatarMoeda(valorCobrarAtual)}\`\n💰 **Lucro Líquido (M.O):** \`${formatarMoeda(valorMaoDeObraAtual)}\``;
+        enviarParaDiscord(msgDiscord);
+
+        alert(`Sucesso! Lucro de Mão de Obra de ${formatarMoeda(valorMaoDeObraAtual)} registrado.`);
+        window.location.reload();
+    }
+
+    function atualizarExibicaoFaturamento() {
+        document.getElementById('totFaturadoTurno').innerText = formatarMoeda(totalFaturado);
+    }
+
+    function renderizarHistoricoVendas() {
+        const tbody = document.getElementById('historySalesBody');
+        tbody.innerHTML = '';
+
+        if (historicoVendas.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#555;">Nenhum lucro registrado</td></tr>`;
+            return;
+        }
+
+        historicoVendas.forEach(venda => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>#${venda.id}</strong></td>
+                <td>${venda.tipo}</td>
+                <td style="color:#52b788; font-weight:bold;">+ ${formatarMoeda(venda.valor)}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function limparHistoricoVendas() {
+        if (confirm("Quer realmente zerar seus lucros de Mão de Obra deste turno?")) {
+            totalFaturado = 0;
+            historicoVendas = [];
+            localStorage.setItem('bennys_total_faturado', 0);
+            localStorage.setItem('bennys_historico_vendas', JSON.stringify([]));
+            atualizarExibicaoFaturamento();
+            renderizarHistoricoVendas();
+        }
+    }
+
+    // Registrar Materiais
+    function registrarMateriais() {
+        const idMecMat = document.getElementById('mecanicoIdMat').value.trim();
+        const nomeMec = document.getElementById('nomeMat').value.trim();
+        const inputAl = document.getElementById('inputAluminio');
+        const inputCob = document.getElementById('inputCobre');
+        const inputImg = document.getElementById('inputImgLink');
+
+        if (!idMecMat) {
+            alert("Por favor, insira o seu ID (Passaporte) antes de registrar!");
+            return;
+        }
+        if (!nomeMec) {
+            alert("Por favor, insira o seu Nome na Cidade!");
+            return;
+        }
+
+        const qtdAl = parseInt(inputAl.value) || 0;
+        const qtdCob = parseInt(inputCob.value) || 0;
+        const linkImg = inputImg.value.trim() || "Não enviado";
+
+        if (qtdAl === 0 && qtdCob === 0) {
+            alert("Digite a quantidade de Alumínio ou Cobre para salvar!");
+            return;
+        }
+
+        let idAluminio = parseInt(localStorage.getItem(`bennys_al_${idMecMat}`)) || 0;
+        let idCobre = parseInt(localStorage.getItem(`bennys_co_${idMecMat}`)) || 0;
+
+        idAluminio += qtdAl;
+        idCobre += qtdCob;
+
+        localStorage.setItem(`bennys_al_${idMecMat}`, idAluminio);
+        localStorage.setItem(`bennys_co_${idMecMat}`, idCobre);
+
+        historicoMateriais.unshift({
+            id: idMecMat,
+            aluminio: qtdAl,
+            cobre: qtdCob,
+            imagem: linkImg !== "Não enviado" ? linkImg : "#"
+        });
+        localStorage.setItem('bennys_historico', JSON.stringify(historicoMateriais));
+
+        const totalIdAtualizado = idAluminio + idCobre;
+
+        const msgDiscord = `📦 **[ENTREGA DE MATERIAIS]**\n👤 **Mecânico:** \`${nomeMec}\` *(ID: \`${idMecMat}\`)*\n🔹 **Alumínio Entregue:** \`${qtdAl}\`\n🔸 **Cobre Entregue:** \`${qtdCob}\`\n📈 **Progresso Individual:** \`${totalIdAtualizado}/${META_SEMANAL}\` itens enviados na semana\n📸 **Link do Print:** ${linkImg !== "Não enviado" ? linkImg : "*Não enviado*"}`;
+        enviarParaDiscord(msgDiscord);
+
+        alert(`Materiais salvos com sucesso! Progresso na meta: ${totalIdAtualizado}/${META_SEMANAL}`);
+        window.location.reload();
+    }
+
+    function renderizarHistorico() {
+        const tbody = document.getElementById('historyBody');
+        tbody.innerHTML = '';
+
+        if (historicoMateriais.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#555;">Nenhum registro ainda</td></tr>`;
+            return;
+        }
+
+        historicoMateriais.forEach(item => {
+            const tr = document.createElement('tr');
+            const linkTag = item.imagem !== "#" 
+                ? `<a href="${item.imagem}" target="_blank" class="link-comprovante">Ver Print</a>`
+                : `<span style="color:#444;">Sem print</span>`;
+
+            tr.innerHTML = `
+                <td><strong>#${item.id}</strong></td>
+                <td style="color: var(--accent-blue);">${item.aluminio}</td>
+                <td style="color: var(--accent-orange);">${item.cobre}</td>
+                <td>${linkTag}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function limparMateriaisEstoque() {
+        const idMecMat = document.getElementById('mecanicoIdMat').value.trim();
+        if (!idMecMat) {
+            alert("Por favor, digite seu ID para poder resetar seu estoque pessoal!");
+            return;
+        }
+
+        if (confirm(`Quer realmente zerar os materiais acumulados do ID #${idMecMat}?`)) {
+            localStorage.setItem(`bennys_al_${idMecMat}`, 0);
+            localStorage.setItem(`bennys_co_${idMecMat}`, 0);
+            historicoMateriais = [];
+            localStorage.setItem('bennys_historico', JSON.stringify([]));
+            sincronizarIdentidades(idMecMat, 'id');
+            renderizarHistorico();
+        }
     }
 </script>
 
