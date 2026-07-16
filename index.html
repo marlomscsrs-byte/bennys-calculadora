@@ -464,10 +464,10 @@
     <!-- Abas de Navegação -->
     <div class="tabs-nav">
         <button class="tab-btn active" onclick="switchTab('calc')">🛠️ Calculadora</button>
-        <button class="tab-btn" onclick="switchTab('metas')">📦 Registrar Meta</button>
+        <button class="tab-btn" onclick="switchTab('metas')">📦 Estoque & Itens</button>
     </div>
 
-    <!-- CONTEÚDO: CALCULADORA (Apenas Cálculo Direto) -->
+    <!-- CONTEÚDO: CALCULADORA -->
     <div id="tab-calc" class="tab-content active">
         <div class="input-group">
             <label for="baseValue">Valor de Custo (Peças):</label>
@@ -498,7 +498,7 @@
         </div>
     </div>
 
-    <!-- CONTEÚDO: ESTOQUE DE MATERIAIS (Inalterado) -->
+    <!-- CONTEÚDO: ESTOQUE DE MATERIAIS -->
     <div id="tab-metas" class="tab-content">
         
         <!-- ENTRADA DE MATERIAIS -->
@@ -508,15 +508,16 @@
             <div class="input-group row-flex">
                 <div>
                     <label for="mecanicoIdMat">ID Passaporte:</label>
-                    <input type="text" id="mecanicoIdMat" class="id-input" placeholder="Ex: 1042" required oninput="sincronizarIdentidades(this.value, 'id')">
+                    <!-- Campo de ID higienizado por Regex pura para aceitar apenas números -->
+                    <input type="text" id="mecanicoIdMat" class="id-input" placeholder="Ex: 596" required oninput="this.value = this.value.replace(/[^0-9]/g, ''); sincronizarIdentidades(this.value, 'id')">
                 </div>
                 <div>
                     <label for="nomeMat">Nome na Cidade:</label>
-                    <input type="text" id="nomeMat" class="name-input" placeholder="Ex: Gabriel Brito" required oninput="sincronizarIdentidades(this.value, 'nome')">
+                    <input type="text" id="nomeMat" class="name-input" placeholder="Ex: Helena Reis" required oninput="sincronizarIdentidades(this.value, 'nome')">
                 </div>
             </div>
 
-            <!-- META SEMANAL DO ID SELECIONADO -->
+            <!-- META SEMANAL -->
             <div class="meta-container" id="metaSection" style="margin-top: 15px; display: none;">
                 <label style="color: #fff; font-size: 11px;">Sua Meta Semanal (<span id="idMetaTitle">#----</span>)</label>
                 <div class="progress-container">
@@ -538,10 +539,10 @@
 
             <div class="input-group">
                 <label>Link da Imagem (Inventário):</label>
-                <input type="text" id="inputImgLink" placeholder="Cole aqui o link do print (Discord/Imgur)">
+                <input type="text" id="inputImgLink" placeholder="Cole aqui o link do print">
             </div>
 
-            <button class="btn-action btn-register-materials" onclick="registrarMateriais()">📦 Registrar Materiais</button>
+            <button class="btn-action btn-register-materials" id="btnSalvarMat" onclick="registrarMateriais()">📦 Registrar Materiais</button>
         </div>
 
         <!-- TOTAIS DOS MATERIAIS COLETADOS -->
@@ -558,7 +559,7 @@
                 </div>
             </div>
 
-            <!-- Histórico de Imagens e Registros -->
+            <!-- Histórico -->
             <div class="history-section">
                 <label>Histórico Local de Entregas:</label>
                 <div class="history-table-container">
@@ -589,14 +590,11 @@
 </div>
 
 <script>
-    // URL do Webhook do Discord Oficial
     const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1526991641473319087/FkSmdTG6Oa9letv4t8GvJS5G1buBR3SgrhACFEp1o1tdYI0f6vL9hAfTNHL306aTKGox';
     const META_SEMANAL = 300;
 
-    // Estados Globais / Turno Financeiro
     let historicoMateriais = JSON.parse(localStorage.getItem('bennys_historico')) || [];
     
-    // Inicialização ao carregar a página
     renderizarHistorico();
     sincronizarIdentidades("", 'id'); 
 
@@ -604,7 +602,6 @@
         return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'USD' }).replace('US$', '$'); 
     }
 
-    // Gerenciador de Abas
     function switchTab(tabName) {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -618,13 +615,11 @@
         }
     }
 
-    // Lógica para sincronizar dinamicamente os IDs e os nomes da aba de metas
     function sincronizarIdentidades(valor, tipo) {
         const textoLimpo = valor.trim();
         
         if (tipo === 'id') {
             document.getElementById('mecanicoIdMat').value = textoLimpo;
-
             const metaContainer = document.getElementById('metaSection');
 
             if (textoLimpo === "") {
@@ -643,7 +638,6 @@
         }
     }
 
-    // Busca e exibe do LocalStorage os materiais específicos apenas do ID ativo
     function atualizarExibicaoMateriaisDoID(id) {
         const totalAluminioID = parseInt(localStorage.getItem(`bennys_al_${id}`)) || 0;
         const totalCobreID = parseInt(localStorage.getItem(`bennys_co_${id}`)) || 0;
@@ -658,7 +652,6 @@
         document.getElementById('progressText').innerText = `${somaItens} / ${META_SEMANAL} Itens (${porcentagem.toFixed(0)}%)`;
     }
 
-    // Lógica da Calculadora Direta
     function calcularValores() {
         const input = document.getElementById('baseValue');
         const isPoliceCheckbox = document.getElementById('isPolice');
@@ -674,22 +667,32 @@
         document.getElementById('txtTotal').innerText = formatarMoeda(valorTotal);
     }
 
-    // Enviar dados para o Discord
-    function enviarParaDiscord(mensagemFormatada) {
+    // Função de envio robusta com tratamento de erros integrado
+    function enviarParaDiscord(mensagemFormatada, callbackSucesso, callbackErro) {
         fetch(DISCORD_WEBHOOK_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ content: messageFormatada })
-        }).catch(err => console.error("Erro ao reportar no Discord: ", err));
+            body: JSON.stringify({ content: mensagemFormatada })
+        })
+        .then(response => {
+            if (response.ok) {
+                callbackSucesso();
+            } else {
+                callbackErro("O Discord recusou a mensagem. Provavelmente o link da imagem está quebrado ou corrompido.");
+            }
+        })
+        .catch(err => {
+            callbackErro("Falha na conexão de rede ao tentar falar com o Discord.");
+        });
     }
 
-    // Registrar Materiais
     function registrarMateriais() {
-        const idMecMat = document.getElementById('mecanicoIdMat').value.trim();
+        const idMecMat = document.getElementById('mecanicoIdMat').value.replace(/[^0-9]/g, '').trim();
         const nomeMec = document.getElementById('nomeMat').value.trim();
         const inputAl = document.getElementById('inputAluminio');
         const inputCob = document.getElementById('inputCobre');
         const inputImg = document.getElementById('inputImgLink');
+        const btnSalvar = document.getElementById('btnSalvarMat');
 
         if (!idMecMat) {
             alert("Por favor, insira o seu ID (Passaporte) antes de registrar!");
@@ -702,37 +705,65 @@
 
         const qtdAl = parseInt(inputAl.value) || 0;
         const qtdCob = parseInt(inputCob.value) || 0;
-        const linkImg = inputImg.value.trim() || "Não enviado";
+        let linkImg = inputImg.value.trim();
 
         if (qtdAl === 0 && qtdCob === 0) {
             alert("Digite a quantidade de Alumínio ou Cobre para salvar!");
             return;
         }
 
+        // Desativa o botão temporariamente para evitar cliques duplos rápidos
+        btnSalvar.disabled = true;
+        btnSalvar.innerText = "⏳ Enviando dados...";
+
         let idAluminio = parseInt(localStorage.getItem(`bennys_al_${idMecMat}`)) || 0;
         let idCobre = parseInt(localStorage.getItem(`bennys_co_${idMecMat}`)) || 0;
 
-        idAluminio += qtdAl;
-        idCobre += qtdCob;
+        const totalIdAtualizado = idAluminio + qtdAl + qtdCob;
+        
+        // Monta a mensagem padrão
+        const gerarMensagem = (link) => {
+            const linkTexto = link ? link : "*Não enviado/Removido por erro*";
+            return `📦 **[ENTREGA DE MATERIAIS]**\n👤 **Mecânico:** \`${nomeMec}\` *(ID: \`${idMecMat}\`)*\n🔹 **Alumínio Entregue:** \`${qtdAl}\`\n🔸 **Cobre Entregue:** \`${qtdCob}\`\n📈 **Progresso Individual:** \`${totalIdAtualizado}/${META_SEMANAL}\` itens enviados na semana\n📸 **Link do Print:** ${linkTexto}`;
+        };
 
-        localStorage.setItem(`bennys_al_${idMecMat}`, idAluminio);
-        localStorage.setItem(`bennys_co_${idMecMat}`, idCobre);
+        const prosseguirSalvamentoLocal = () => {
+            idAluminio += qtdAl;
+            idCobre += qtdCob;
+            localStorage.setItem(`bennys_al_${idMecMat}`, idAluminio);
+            localStorage.setItem(`bennys_co_${idMecMat}`, idCobre);
 
-        historicoMateriais.unshift({
-            id: idMecMat,
-            aluminio: qtdAl,
-            cobre: qtdCob,
-            imagem: linkImg !== "Não enviado" ? linkImg : "#"
+            historicoMateriais.unshift({
+                id: idMecMat,
+                aluminio: qtdAl,
+                cobre: qtdCob,
+                imagem: linkImg ? linkImg : "#"
+            });
+            localStorage.setItem('bennys_historico', JSON.stringify(historicoMateriais));
+
+            alert(`Materiais salvos com sucesso! Progresso na meta atualizado.`);
+            window.location.reload();
+        };
+
+        // Primeira tentativa: Envia com o link fornecido
+        enviarParaDiscord(gerarMensagem(linkImg), prosseguirSalvamentoLocal, function(erroMensagem) {
+            console.warn(erroMensagem);
+            
+            // Segunda tentativa de contingência: Se falhar por causa do link da imagem, tenta enviar puramente sem imagem
+            if(linkImg !== "") {
+                alert("O link da sua imagem causou um erro no Discord. Vamos tentar enviar os seus materiais desconsiderando o link do print para não perder o seu progresso!");
+                linkImg = ""; 
+                enviarParaDiscord(gerarMensagem(linkImg), prosseguirSalvamentoLocal, function(erroFatal) {
+                    alert("Erro crítico: Não foi possível enviar os dados ao Discord. Verifique sua conexão ou as configurações do Webhook.");
+                    btnSalvar.disabled = false;
+                    btnSalvar.innerText = "📦 Registrar Materiais";
+                });
+            } else {
+                alert(erroMensagem);
+                btnSalvar.disabled = false;
+                btnSalvar.innerText = "📦 Registrar Materiais";
+            }
         });
-        localStorage.setItem('bennys_historico', JSON.stringify(historicoMateriais));
-
-        const totalIdAtualizado = idAluminio + idCobre;
-
-        const msgDiscord = `📦 **[ENTREGA DE MATERIAIS]**\n👤 **Mecânico:** \`${nomeMec}\` *(ID: \`${idMecMat}\`)*\n🔹 **Alumínio Entregue:** \`${qtdAl}\`\n🔸 **Cobre Entregue:** \`${qtdCob}\`\n📈 **Progresso Individual:** \`${totalIdAtualizado}/${META_SEMANAL}\` itens enviados na semana\n📸 **Link do Print:** ${linkImg !== "Não enviado" ? linkImg : "*Não enviado*"}`;
-        enviarParaDiscord(msgDiscord);
-
-        alert(`Materiais salvos com sucesso! Progresso na meta: ${totalIdAtualizado}/${META_SEMANAL}`);
-        window.location.reload();
     }
 
     function renderizarHistorico() {
