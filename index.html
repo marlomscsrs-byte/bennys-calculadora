@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Benny's Motorworks - Calculadora & Materiais</title>
+    <!-- Importação de fontes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Rubik+Mono+One&family=Share+Tech+Mono&family=Teko:wght@600&family=Montserrat:ital,wght=1,300&display=swap" rel="stylesheet">
@@ -346,4 +347,552 @@
             position: relative;
         }
         .progress-bar {
-            background: linear-gradient(
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
+            height: 100%;
+            width: 0%;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 8px rgba(217, 4, 41, 0.6);
+        }
+        
+        /* Modificador de barra concluída */
+        .progress-bar.completed {
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-green-hover)) !important;
+            box-shadow: 0 0 10px rgba(82, 183, 136, 0.8) !important;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-color);
+            margin-top: 6px;
+            font-weight: bold;
+        }
+
+        .materials-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .material-total-card {
+            background: #151515;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .material-total-card.aluminio { border-left: 3px solid var(--accent-blue); }
+        .material-total-card.cobre { border-left: 3px solid var(--accent-orange); }
+
+        .material-value {
+            font-size: 22px;
+            font-weight: bold;
+            color: #fff;
+            margin-top: 5px;
+        }
+
+        /* TABELA HISTÓRICA */
+        .history-section {
+            margin-top: 10px;
+        }
+
+        .history-table-container {
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #222;
+            border-radius: 4px;
+            background: #080808;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            text-align: left;
+        }
+
+        .history-table th {
+            background-color: #111;
+            color: var(--text-secondary);
+            padding: 6px;
+            font-weight: normal;
+            border-bottom: 1px solid #222;
+            position: sticky;
+            top: 0;
+        }
+
+        .history-table td {
+            padding: 6px;
+            border-bottom: 1px solid #151515;
+            color: #fff;
+        }
+
+        .link-comprovante {
+            color: #48cae4;
+            text-decoration: none;
+        }
+        .link-comprovante:hover {
+            text-decoration: underline;
+        }
+
+        .btn-reset-meta {
+            background-color: transparent;
+            border: 1px dashed #444;
+            color: #888;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            margin-top: 5px;
+            display: block;
+            width: fit-content;
+            margin-left: auto;
+            transition: all 0.2s;
+        }
+
+        .btn-reset-meta:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: #555;
+            margin-top: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator-card" id="mainCard">
+    <!-- Logotipo Benny's -->
+    <div class="logo-container">
+        <div class="logo-bennys">Benny's</div>
+        <div class="logo-original">Original</div>
+        <div class="logo-motorworks">Motorworks</div>
+        <div class="logo-speedshop">Speed Shop</div>
+    </div>
+
+    <!-- Abas de Navegação -->
+    <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab('calc')">🛠️ Calculadora</button>
+        <button class="tab-btn" onclick="switchTab('metas')">📦 Estoque & Itens</button>
+    </div>
+
+    <!-- CONTEÚDO: CALCULADORA -->
+    <div id="tab-calc" class="tab-content active">
+        <div class="input-group">
+            <label for="baseValue">Valor de Custo (Peças):</label>
+            <div class="input-wrapper">
+                <span class="currency-symbol">$</span>
+                <input type="number" id="baseValue" placeholder="0,00" min="0" oninput="calcularValores()" autofocus>
+            </div>
+        </div>
+
+        <div class="options-group">
+            <input type="checkbox" id="isPolice" onchange="calcularValores()">
+            <label for="isPolice">Cliente é Policial? (Margem de 25%)</label>
+        </div>
+
+        <div class="results">
+            <div class="result-row">
+                <span>Custo das Peças:</span>
+                <span id="txtCusto">$ 0,00</span>
+            </div>
+            <div class="result-row">
+                <span>Mão de Obra (<span id="txtMargem">30</span>%):</span>
+                <span id="txtAcrescimo">$ 0,00</span>
+            </div>
+            <div class="result-row total">
+                <span>Cobrar do Cliente:</span>
+                <span id="txtTotal">$ 0,00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTEÚDO: ESTOQUE DE MATERIAIS -->
+    <div id="tab-metas" class="tab-content">
+        
+        <!-- ENTRADA DE MATERIAIS -->
+        <div class="materials-box">
+            <div class="materials-title">Registrar Entrada</div>
+            
+            <div class="input-group row-flex">
+                <div>
+                    <label for="mecanicoIdMat">ID Passaporte:</label>
+                    <input type="text" id="mecanicoIdMat" class="id-input" placeholder="Ex: 596" required oninput="limparIdInput(this.value)">
+                </div>
+                <div>
+                    <label for="nomeMat">Nome na Cidade:</label>
+                    <input type="text" id="nomeMat" class="name-input" placeholder="Ex: Helena Reis" required>
+                </div>
+            </div>
+
+            <!-- META SEMANAL -->
+            <div class="meta-container" id="metaSection" style="margin-top: 15px; display: none;">
+                <label style="color: #fff; font-size: 11px;">Sua Meta Semanal (<span id="idMetaTitle">#----</span>)</label>
+                <div class="progress-container">
+                    <div id="progressBar" class="progress-bar"></div>
+                </div>
+                <div id="progressText" class="progress-text">0 / 300 Itens (0%)</div>
+            </div>
+
+            <div class="input-group materials">
+                <div>
+                    <label>Alumínio (Qtd):</label>
+                    <input type="number" id="inputAluminio" class="mat-input-aluminio" placeholder="0" min="0">
+                </div>
+                <div>
+                    <label>Cobre (Qtd):</label>
+                    <input type="number" id="inputCobre" class="mat-input-cobre" placeholder="0" min="0">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Link da Imagem (Inventário):</label>
+                <input type="text" id="inputImgLink" placeholder="Cole aqui o link do print">
+            </div>
+
+            <button class="btn-action btn-register-materials" id="btnSalvarMat" onclick="registrarMateriais()">📦 Registrar Materiais</button>
+        </div>
+
+        <!-- TOTAIS DOS MATERIAIS COLETADOS -->
+        <div class="materials-box">
+            <div class="materials-title">Seu Estoque Total (<span id="idEstoqueTitle">#----</span>)</div>
+            <div class="materials-grid">
+                <div class="material-total-card aluminio">
+                    <span style="color: var(--accent-blue);">ALUMÍNIO</span>
+                    <div class="material-value" id="totAluminio">0</div>
+                </div>
+                <div class="material-total-card cobre">
+                    <span style="color: var(--accent-orange);">COBRE</span>
+                    <div class="material-value" id="totCobre">0</div>
+                </div>
+            </div>
+
+            <!-- Histórico -->
+            <div class="history-section">
+                <label>Histórico Local de Entregas:</label>
+                <div class="history-table-container">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Alum.</th>
+                                <th>Cobre</th>
+                                <th>Print</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyBody">
+                            <!-- Preenchido dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-reset-meta" onclick="limparMateriaisEstoque()">Zerar Estoque & Histórico</button>
+    </div>
+
+    <!-- Rodapé com assinatura -->
+    <div class="footer">
+        Est. 2026 • Criado por Brito
+    </div>
+</div>
+
+<script>
+    const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1526991641473319087/FkSmdTG6Oa9letv4t8GvJS5G1buBR3SgrhACFEp1o1tdYI0f6vL9hAfTNHL306aTKGox';
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzWE-FWTbxgJWA8-P3OD1Zu81oRvnE_Vrcqa9PMQArZkD9CGSwmQwTFRqUvDrvscP1nVg/exec'; 
+    const META_SEMANAL = 300;
+
+    // Inicialização do histórico segura
+    let historicoMateriais = [];
+    try {
+        const localData = localStorage.getItem('bennys_historico');
+        if (localData) {
+            historicoMateriais = JSON.parse(localData);
+            if (!Array.isArray(historicoMateriais)) {
+                historicoMateriais = [];
+            }
+        }
+    } catch(e) {
+        console.error("Erro ao carregar histórico local:", e);
+        historicoMateriais = [];
+    }
+
+    // Inicialização da interface
+    renderizarHistorico();
+
+    function formatarMoeda(valor) {
+        return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'USD' }).replace('US$', '$'); 
+    }
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+        if (tabName === 'calc') {
+            document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+            document.getElementById('tab-calc').classList.add('active');
+        } else {
+            document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+            document.getElementById('tab-metas').classList.add('active');
+        }
+    }
+
+    function limparIdInput(valor) {
+        const textoLimpo = valor.replace(/[^0-9]/g, '').trim();
+        document.getElementById('mecanicoIdMat').value = textoLimpo;
+        sincronizarIdentidade(textoLimpo);
+    }
+
+    function sincronizarIdentidade(id) {
+        const metaContainer = document.getElementById('metaSection');
+
+        if (id === "") {
+            metaContainer.style.display = "none";
+            document.getElementById('idEstoqueTitle').innerText = "#----";
+            document.getElementById('totAluminio').innerText = "0";
+            document.getElementById('totCobre').innerText = "0";
+            document.getElementById('mainCard').classList.remove('meta-concluida-border');
+        } else {
+            metaContainer.style.display = "block";
+            document.getElementById('idMetaTitle').innerText = `#${id}`;
+            document.getElementById('idEstoqueTitle').innerText = `#${id}`;
+            atualizarExibicaoMateriaisDoID(id);
+        }
+    }
+
+    function atualizarExibicaoMateriaisDoID(id) {
+        const totalAluminioID = parseInt(localStorage.getItem(`bennys_al_${id}`)) || 0;
+        const totalCobreID = parseInt(localStorage.getItem(`bennys_co_${id}`)) || 0;
+
+        document.getElementById('totAluminio').innerText = totalAluminioID;
+        document.getElementById('totCobre').innerText = totalCobreID;
+
+        const somaItens = totalAluminioID + totalCobreID;
+        const porcentagem = Math.min((somaItens / META_SEMANAL) * 100, 100);
+
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const mainCard = document.getElementById('mainCard');
+
+        progressBar.style.width = porcentagem + '%';
+
+        if (somaItens >= META_SEMANAL) {
+            progressBar.classList.add('completed');
+            progressText.innerHTML = `<span style="color: var(--accent-green); font-weight: bold;">🎉 META CONCLUÍDA: ${somaItens} / ${META_SEMANAL} (${porcentagem.toFixed(0)}%)</span>`;
+            mainCard.classList.add('meta-concluida-border'); 
+        } else {
+            progressBar.classList.remove('completed');
+            progressText.innerText = `${somaItens} / ${META_SEMANAL} Itens (${porcentagem.toFixed(0)}%)`;
+            mainCard.classList.remove('meta-concluida-border');
+        }
+    }
+
+    function calcularValores() {
+        const input = document.getElementById('baseValue');
+        const isPoliceCheckbox = document.getElementById('isPolice');
+        const valorBase = parseFloat(input.value) || 0;
+
+        const taxa = isPoliceCheckbox.checked ? 0.25 : 0.30; 
+        const valorMaoDeObra = valorBase * taxa; 
+        const valorTotal = valorBase + valorMaoDeObra;
+
+        document.getElementById('txtMargem').innerText = (taxa * 100).toFixed(0);
+        document.getElementById('txtCusto').innerText = formatarMoeda(valorBase);
+        document.getElementById('txtAcrescimo').innerText = formatarMoeda(valorMaoDeObra);
+        document.getElementById('txtTotal').innerText = formatarMoeda(valorTotal);
+    }
+
+    function enviarParaDiscord(mensagemFormatada, callbackSucesso, callbackErro) {
+        fetch(DISCORD_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: mensagemFormatada })
+        })
+        .then(response => {
+            if (response.ok) {
+                callbackSucesso();
+            } else {
+                callbackErro("O Discord recusou a mensagem. Verifique a URL do Webhook ou o link da imagem.");
+            }
+        })
+        .catch(err => {
+            callbackErro("Falha na conexão de rede ao tentar falar com o Discord.");
+        });
+    }
+
+    function registrarMateriais() {
+        const idMecMat = document.getElementById('mecanicoIdMat').value.replace(/[^0-9]/g, '').trim();
+        const nomeMec = document.getElementById('nomeMat').value.trim(); 
+        const inputAl = document.getElementById('inputAluminio');
+        const inputCob = document.getElementById('inputCobre');
+        const inputImg = document.getElementById('inputImgLink');
+        const btnSalvar = document.getElementById('btnSalvarMat');
+
+        if (!idMecMat) {
+            alert("Por favor, insira o seu ID (Passaporte) antes de registrar!");
+            return;
+        }
+        if (!nomeMec) {
+            alert("Por favor, insira o seu Nome na Cidade!");
+            return;
+        }
+
+        const qtdAl = parseInt(inputAl.value) || 0;
+        const qtdCob = parseInt(inputCob.value) || 0;
+        let linkImg = inputImg.value.trim();
+
+        if (qtdAl === 0 && qtdCob === 0) {
+            alert("Digite a quantidade de Alumínio ou Cobre para salvar!");
+            return;
+        }
+
+        btnSalvar.disabled = true;
+        btnSalvar.innerText = "⏳ Enviando dados...";
+
+        let idAluminio = parseInt(localStorage.getItem(`bennys_al_${idMecMat}`)) || 0;
+        let idCobre = parseInt(localStorage.getItem(`bennys_co_${idMecMat}`)) || 0;
+
+        const totalIdAntes = idAluminio + idCobre;
+        const totalIdAtualizado = totalIdAntes + qtdAl + qtdCob;
+        
+        const metaAtingidaNesseEnvio = (totalIdAntes < META_SEMANAL && totalIdAtualizado >= META_SEMANAL);
+        const metaJaEstavaAtingida = (totalIdAntes >= META_SEMANAL);
+        
+        // 1. Objeto de Envio para a Planilha
+        const dadosParaPlanilha = {
+            id: idMecMat,
+            nome: nomeMec,
+            aluminio: qtdAl,
+            cobre: qtdCob,
+            totalAcumulado: totalIdAtualizado,
+            linkImg: linkImg || "Não enviado"
+        };
+
+        // Envia para o Google Sheets (Silencioso/Assíncrono)
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors', 
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dadosParaPlanilha)
+        })
+        .then(() => {
+            console.log("Dados sincronizados com a Planilha!");
+            enviarDiscordEFinalizar(idMecMat, nomeMec, qtdAl, qtdCob, linkImg, totalIdAtualizado, metaAtingidaNesseEnvio, metaJaEstavaAtingida, totalIdAntes);
+        })
+        .catch(err => {
+            console.error("Erro na Planilha:", err);
+            enviarDiscordEFinalizar(idMecMat, nomeMec, qtdAl, qtdCob, linkImg, totalIdAtualizado, metaAtingidaNesseEnvio, metaJaEstavaAtingida, totalIdAntes); 
+        });
+    }
+
+    function enviarDiscordEFinalizar(idMecMat, nomeMec, qtdAl, qtdCob, linkImg, totalIdAtualizado, metaAtingidaNesseEnvio, metaJaEstavaAtingida, totalIdAntes) {
+        const btnSalvar = document.getElementById('btnSalvarMat');
+
+        const gerarMensagem = (link) => {
+            const linkTexto = link ? link : "*Não enviado/Removido por erro*";
+            let cabecalho = "📦 **[ENTREGA DE MATERIAIS]**";
+            let rodapeMeta = `📈 **Progresso Individual:** \`${totalIdAtualizado}/${META_SEMANAL}\` itens enviados na semana`;
+
+            if (metaAtingidaNesseEnvio || metaJaEstavaAtingida) {
+                cabecalho = "✅ **[ENTREGA DE MATERIAIS - META SEMANAL ATINGIDA!]** ✅";
+                rodapeMeta = `🟢 **Progresso Individual:** \`${totalIdAtualizado}/${META_SEMANAL}\` **(META 100% CONCLUÍDA!)** 🟢`;
+            }
+
+            return `${cabecalho}\n👤 **Mecânico:** \`${nomeMec}\` *(ID: \`${idMecMat}\`)*\n🔹 **Alumínio Entregue:** \`${qtdAl}\`\n🔸 **Cobre Entregue:** \`${qtdCob}\`\n${rodapeMeta}\n📸 **Link do Print:** ${linkTexto}`;
+        };
+
+        const prosseguirSalvamentoLocal = () => {
+            let idAluminio = parseInt(localStorage.getItem(`bennys_al_${idMecMat}`)) || 0;
+            let idCobre = parseInt(localStorage.getItem(`bennys_co_${idMecMat}`)) || 0;
+
+            idAluminio += qtdAl;
+            idCobre += qtdCob;
+            localStorage.setItem(`bennys_al_${idMecMat}`, idAluminio);
+            localStorage.setItem(`bennys_co_${idMecMat}`, idCobre);
+
+            historicoMateriais.unshift({
+                id: idMecMat,
+                aluminio: qtdAl,
+                cobre: qtdCob,
+                imagem: linkImg ? linkImg : "#"
+            });
+            localStorage.setItem('bennys_historico', JSON.stringify(historicoMateriais));
+
+            if (totalIdAntes < META_SEMANAL && totalIdAtualizado >= META_SEMANAL) {
+                alert(`🎉 PARABÉNS! Você acabou de atingir a sua meta semanal de 300 itens! Registro enviado com sucesso.`);
+            } else {
+                alert(`Materiais salvos com sucesso! Progresso na meta atualizado.`);
+            }
+            window.location.reload();
+        };
+
+        enviarParaDiscord(gerarMensagem(linkImg), prosseguirSalvamentoLocal, function(erroMensagem) {
+            if(linkImg !== "") {
+                alert("O link da sua imagem causou um erro no Discord. Tentando enviar sem o print...");
+                linkImg = ""; 
+                enviarParaDiscord(gerarMensagem(""), prosseguirSalvamentoLocal, function(erroFatal) {
+                    alert("Erro crítico: Não foi possível falar com o Discord. Verifique sua conexão ou Webhook.");
+                    btnSalvar.disabled = false;
+                    btnSalvar.innerText = "📦 Registrar Materiais";
+                });
+            } else {
+                alert(erroMensagem);
+                btnSalvar.disabled = false;
+                btnSalvar.innerText = "📦 Registrar Materiais";
+            }
+        });
+    }
+
+    function renderizarHistorico() {
+        const tbody = document.getElementById('historyBody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        if (historicoMateriais.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#555;">Nenhum registro ainda</td></tr>`;
+            return;
+        }
+
+        historicoMateriais.forEach(item => {
+            const tr = document.createElement('tr');
+            const linkTag = item.imagem !== "#" 
+                ? `<a href="${item.imagem}" target="_blank" class="link-comprovante">Ver Print</a>`
+                : `<span style="color:#444;">Sem print</span>`;
+
+            tr.innerHTML = `
+                <td><strong>#${item.id}</strong></td>
+                <td style="color: var(--accent-blue);">${item.aluminio}</td>
+                <td style="color: var(--accent-orange);">${item.cobre}</td>
+                <td>${linkTag}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function limparMateriaisEstoque() {
+        const idMecMat = document.getElementById('mecanicoIdMat').value.trim();
+        if (!idMecMat) {
+            alert("Por favor, digite seu ID para poder resetar seu estoque pessoal!");
+            return;
+        }
+
+        if (confirm(`Quer realmente zerar os materiais acumulados do ID #${idMecMat}?`)) {
+            localStorage.setItem(`bennys_al_${idMecMat}`, 0);
+            localStorage.setItem(`bennys_co_${idMecMat}`, 0);
+            historicoMateriais = [];
+            localStorage.setItem('bennys_historico', JSON.stringify([]));
+            sincronizarIdentidade(idMecMat);
+            renderizarHistorico();
+        }
+    }
+</script>
+
+</body>
+</html>
