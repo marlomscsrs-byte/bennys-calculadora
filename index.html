@@ -886,20 +886,6 @@
             document.getElementById('mecanicoIdMat').value = salvoId;
             sincronizarIdentidade(salvoId);
         }
-
-        // Recupera Nome do mecânico
-        const salvoNome = localStorage.getItem('bennys_mecanico_nome') || "";
-        if (salvoNome) {
-            document.getElementById('nomeMat').value = salvoNome;
-            document.getElementById('vendaNome').value = salvoNome;
-        }
-    }
-
-    function salvarNomeMecanico(nome) {
-        localStorage.setItem('bennys_mecanico_nome', nome.trim());
-        // Sincroniza em tempo real as duas abas
-        document.getElementById('nomeMat').value = nome;
-        document.getElementById('vendaNome').value = nome;
     }
 
     function formatarMoeda(valor) {
@@ -1001,40 +987,43 @@
 
     // CONSULTA AO GOOGLE SHEETS
     function consultarVendasClientePlanilha(idCliente) {
-        const painel = document.getElementById('panelLimitesDiarios');
-        const statusText = document.getElementById('limitStatus');
-        
-        painel.style.display = "block";
-        statusText.innerText = "Buscando histórico...";
-        statusText.style.color = "var(--accent-orange)";
+    const painel = document.getElementById('panelLimitesDiarios');
+    const statusText = document.getElementById('limitStatus');
 
-        fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                tipoReg: "consultar_limites",
-                idCliente: idCliente
-            })
-        })
-        .then(res => res.json())
-        .then(dados => {
-            limitesDiariosHoje = {
-                "PNEU": dados["PNEU"] || 0,
-                "FERRAMENTAS BASICAS": dados["FERRAMENTAS BASICAS"] || 0,
-                "PE DE CABRA": dados["PE DE CABRA"] || 0,
-                "CHAVE INGLESA": dados["CHAVE INGLESA"] || 0
-            };
-            
-            atualizarPainelLimites();
-            statusText.innerText = "Sincronizado";
-            statusText.style.color = "var(--accent-green)";
-        })
-        .catch(err => {
-            console.error("Erro ao ler limites:", err);
-            statusText.innerText = "Modo Offline (Sem travas)";
-            statusText.style.color = "var(--primary-color)";
-        });
-    }
+    painel.style.display = "block";
+    statusText.innerText = "Buscando histórico...";
+    statusText.style.color = "var(--accent-orange)";
+
+    const dados = new URLSearchParams();
+    dados.append("tipoReg", "consultar_limites");
+    dados.append("idCliente", idCliente);
+
+    fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        body: dados
+    })
+    .then(res => res.json())
+    .then(dados => {
+
+        limitesDiariosHoje = {
+            "PNEU": dados.PNEU || 0,
+            "FERRAMENTAS BASICAS": dados["FERRAMENTAS BASICAS"] || 0,
+            "PE DE CABRA": dados["PE DE CABRA"] || 0,
+            "CHAVE INGLESA": dados["CHAVE INGLESA"] || 0
+        };
+
+        atualizarPainelLimites();
+
+        statusText.innerText = "Sincronizado";
+        statusText.style.color = "var(--accent-green)";
+    })
+    .catch(err => {
+        console.error(err);
+
+        statusText.innerText = "Erro ao consultar";
+        statusText.style.color = "red";
+    });
+}
 
     function atualizarPainelLimites() {
         document.getElementById('limitePneu').innerText = `${limitesDiariosHoje["PNEU"]} / 5`;
@@ -1233,12 +1222,13 @@
         };
 
         // Envia para a planilha
-        fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dadosPlanilhaVenda)
-        })
+        const form = new URLSearchParams();
+form.append("conteudo", JSON.stringify(dadosPlanilhaVenda));
+
+fetch(GOOGLE_SCRIPT_URL, {
+    method: "POST",
+    body: form
+})
         .then(() => {
             console.log("Venda salva no Google Sheets!");
             // Após salvar com sucesso no Sheets, manda pro Discord
@@ -1315,12 +1305,13 @@
             linkImg: linkImg || "Não enviado"
         };
 
-        fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors', 
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dadosParaPlanilha)
-        })
+        const form = new URLSearchParams();
+form.append("conteudo", JSON.stringify(dadosParaPlanilha));
+
+fetch(GOOGLE_SCRIPT_URL, {
+    method: "POST",
+    body: form
+})
         .then(() => {
             console.log("Dados de materiais sincronizados com a Planilha!");
             enviarDiscordEFinalizar(idMecMat, nomeMec, qtdAl, qtdCob, qtdBor, linkImg, totalIdAtualizado, metaAtingidaNesseEnvio, metaJaEstavaAtingida, totalIdAntes);
